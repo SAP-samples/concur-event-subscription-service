@@ -1,0 +1,325 @@
+{
+	"info": {
+		"_postman_id": "92f43640-c20a-4a41-b50a-f1c83843b84f",
+		"name": "Event Subscription Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30933268"
+	},
+	"item": [
+		{
+			"name": "Obtain application-level Bearer token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Initialize\", function () {\r",
+							"\r",
+							"    pm.response.to.not.be.error;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var accessToken = jsonData.access_token;\r",
+							"    pm.expect(accessToken.length).to.be.above(0);\r",
+							"    \r",
+							"    pm.environment.set(\"accessToken\", accessToken);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{clientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{dataCenterURI}}/oauth2/v0/token",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"oauth2",
+						"v0",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get available Event Topics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{dataCenterURI}}/events/v4/topics",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"events",
+						"v4",
+						"topics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check existing Subscriptions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{dataCenterURI}}/events/v4/subscriptions",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"events",
+						"v4",
+						"subscriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create/update a Subscription",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": \"external-approval-system-xyz\",\r\n  \"filter\": \".*\",\r\n  \"topic\": \"public.concur.expense.report\",\r\n  \"webHookConfig\": {\r\n    \"endpoint\": \"https://some.valid.webhook.endpoint/\"\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{dataCenterURI}}/events/v4/subscriptions/webhook",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"events",
+						"v4",
+						"subscriptions",
+						"webhook"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Subscription",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{dataCenterURI}}/events/v4/subscriptions/external-approval-system-xyz",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"events",
+						"v4",
+						"subscriptions",
+						"external-approval-system-xyz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Subscription",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{dataCenterURI}}/events/v4/subscriptions/external-approval-system-xyz",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"events",
+						"v4",
+						"subscriptions",
+						"external-approval-system-xyz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Activate Subscription by creating Company JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Initialize\", function () {\r",
+							"\r",
+							"    pm.response.to.not.be.error;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var refreshToken = jsonData.refresh_token;\r",
+							"    pm.expect(refreshToken.length).to.be.above(0);\r",
+							"    \r",
+							"    pm.environment.set(\"refreshToken\", refreshToken);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"description": "id (From APP-MGMT)",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{clientSecret}}",
+							"description": "secretAccessKey (From APP-MGMT)",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "",
+							"description": "Request Token (From AUTH)",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{companyUUID}}",
+							"description": "Company UUID (From AUTH)",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "credtype",
+							"value": "authtoken",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{dataCenterURI}}/oauth2/v0/token",
+					"protocol": "https",
+					"host": [
+						"{{dataCenterURI}}"
+					],
+					"path": [
+						"oauth2",
+						"v0",
+						"token"
+					]
+				},
+				"description": "The collection \"(OneTime) Convert Request Token to refresh token\" is used to convert the Concur issued Request Token to a client spcific refresh token.\n\n**Terms:**\n\nRequest Token - A token obtained from Concur that is valid for 24 hours. Since this token might havebeen issued by Concur employee's, it needs to be converted to a client spcific Refresh Token\n\nRefresh Token - A token obtained from postman that is valid for 6 months. Because it is generated by the client, only the client will be able to use it.\n\nAccess Token - A token obtained from postman using the Refresh Token that is valid for 60 minutes. Most API calls require an Access Token in order to function"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
